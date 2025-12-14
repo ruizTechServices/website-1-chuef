@@ -1,9 +1,16 @@
 import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { createClient } from "@/utils/supabase/server";
 
+export default async function LoginPage() {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+  const { data: { user } } = await supabase.auth.getUser();
 
-//Create a check. If the user is already signed in, redirect to the dashboard
-
-export default function LoginPage() {
+  if (user) {
+    redirect("/dashboard");
+  }
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md space-y-8">

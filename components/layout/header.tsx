@@ -66,6 +66,25 @@ export default function Header() {
                 {/* Divider */}
                 <div className="divider w-px h-8 bg-slate-200 dark:bg-slate-700 mx-4 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-300 delay-150 shrink-0" />
 
+                {/* Nav Links */}
+                <div className="nav-links flex items-center gap-1 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-300 delay-150 mr-4">
+                  <Link
+                    href="/chatroom"
+                    className="px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors whitespace-nowrap"
+                  >
+                    Lobby
+                  </Link>
+                  <Link
+                    href="/contact"
+                    className="px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors whitespace-nowrap"
+                  >
+                    Contact
+                  </Link>
+                </div>
+
+                {/* Divider */}
+                <div className="divider w-px h-8 bg-slate-200 dark:bg-slate-700 mr-4 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-300 delay-150 shrink-0" />
+
                 {/* Right side - Auth */}
                 <div className="auth-section flex items-center gap-3 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-300 delay-200">
                   {isLoading ? (
@@ -183,6 +202,30 @@ export default function Header() {
             {/* Mobile dropdown menu */}
             {isMobileMenuOpen && (
               <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                {/* Nav Links */}
+                <div className="space-y-1 mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+                  <Link
+                    href="/chatroom"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-3 p-3 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    Lobby
+                  </Link>
+                  <Link
+                    href="/contact"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-3 p-3 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    Contact
+                  </Link>
+                </div>
+
                 {isLoading ? (
                   <div className="flex items-center gap-3 p-3">
                     <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 animate-pulse" />
