@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 
 export default function CallToAction() {
   return (
@@ -53,14 +54,17 @@ export default function CallToAction() {
                   </span>
                 </button>
 
-                <button className="group px-10 py-5 rounded-2xl font-bold text-lg border-2 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white hover:border-purple-500 dark:hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-500/10 transition-all duration-300">
+                <Link 
+                  href="/login"
+                  className="group px-10 py-5 rounded-2xl font-bold text-lg border-2 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white hover:border-purple-500 dark:hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-500/10 transition-all duration-300"
+                >
                   <span className="flex items-center justify-center gap-3">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                     Create Account
                   </span>
-                </button>
+                </Link>
               </div>
 
               {/* Trust indicators */}

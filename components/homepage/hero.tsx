@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
 
 export default function Hero() {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -94,9 +95,12 @@ export default function Hero() {
                   </span>
                 </button>
                 
-                <button className="group px-8 py-4 rounded-2xl font-bold text-lg border-2 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white hover:border-transparent hover:bg-white/50 dark:hover:bg-white/10 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-black/30">
+                <Link 
+                  href="/login"
+                  className="group px-8 py-4 rounded-2xl font-bold text-lg border-2 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white hover:border-transparent hover:bg-white/50 dark:hover:bg-white/10 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-black/30"
+                >
                   Create Identity
-                </button>
+                </Link>
               </div>
             </div>
 
