@@ -59,6 +59,7 @@ export async function handleChatMessage(
         meta: {
           ...meta,
           room,
+          surface: payload.surface,
         },
       })
       .select("id")

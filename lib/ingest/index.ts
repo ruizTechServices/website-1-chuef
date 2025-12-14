@@ -4,5 +4,6 @@
  */
 
 export * from "./types";
+export type { SurfaceMetadata } from "./types";
 export { handleChatMessage } from "./handlers/chat";
 export { handleContactSubmission } from "./handlers/contact";

@@ -68,6 +68,7 @@ export async function handleContactSubmission(
         meta: {
           ...meta,
           email,
+          surface: payload.surface,
         },
       })
       .select("id")

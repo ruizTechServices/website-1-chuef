@@ -13,9 +13,17 @@ import { createClient } from "@/utils/supabase/server";
 import {
   IngestPayload,
   IngestResponse,
+  SurfaceMetadata,
   handleChatMessage,
   handleContactSubmission,
 } from "@/lib/ingest";
+import { checkRateLimit, getClientIdentifier } from "@/lib/rate-limit";
+
+// Rate limit configs per kind
+const RATE_LIMITS = {
+  chat_message: { windowMs: 60 * 1000, maxRequests: 30 },      // 30/min for chat
+  contact_submission: { windowMs: 60 * 1000, maxRequests: 5 }, // 5/min for contact
+};
 
 export async function POST(request: NextRequest): Promise<NextResponse<IngestResponse>> {
   try {
@@ -27,6 +35,37 @@ export async function POST(request: NextRequest): Promise<NextResponse<IngestRes
         { success: false, error: "Missing 'kind' field", code: "VALIDATION_ERROR" },
         { status: 400 }
       );
+    }
+
+    // Rate limiting
+    const clientId = getClientIdentifier(request);
+    const rateLimitKey = `${body.kind}:${clientId}`;
+    const rateLimit = checkRateLimit(rateLimitKey, RATE_LIMITS[body.kind] || RATE_LIMITS.chat_message);
+
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: `Rate limited. Try again in ${rateLimit.resetIn} seconds.`, 
+          code: "VALIDATION_ERROR" 
+        },
+        { 
+          status: 429,
+          headers: {
+            "X-RateLimit-Remaining": "0",
+            "X-RateLimit-Reset": String(rateLimit.resetIn),
+          }
+        }
+      );
+    }
+
+    // Extract surface metadata from request if not provided
+    if (!body.surface) {
+      body.surface = {
+        surface: body.kind === "chat_message" ? "chatroom" : "contact",
+        userAgent: request.headers.get("user-agent") || undefined,
+        referrer: request.headers.get("referer") || undefined,
+      } as SurfaceMetadata;
     }
 
     // Route to appropriate handler based on kind

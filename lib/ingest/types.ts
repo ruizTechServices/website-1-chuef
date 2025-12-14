@@ -5,10 +5,18 @@
 
 export type InputKind = "chat_message" | "contact_submission";
 
+export interface SurfaceMetadata {
+  surface: string;       // e.g., "chatroom", "contact", "api"
+  page?: string;         // e.g., "/chatroom", "/contact"
+  userAgent?: string;
+  referrer?: string;
+}
+
 export interface BaseIngestPayload {
   kind: InputKind;
   text: string;
   meta?: Record<string, unknown>;
+  surface?: SurfaceMetadata;
 }
 
 export interface ChatMessagePayload extends BaseIngestPayload {
