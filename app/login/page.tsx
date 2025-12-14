@@ -1,5 +1,8 @@
 import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 
+
+//Create a check. If the user is already signed in, redirect to the dashboard
+
 export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">

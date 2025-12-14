@@ -14,14 +14,7 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
-          <h1 className="text-xl font-semibold text-gray-900">Dashboard</h1>
-          <SignOutButton />
-        </div>
-      </header>
-
+    <div className="min-h-screen bg-gray-50 mt-10">
       <main className="mx-auto max-w-7xl px-4 py-8">
         <div className="rounded-xl bg-white p-6 shadow">
           <h2 className="text-lg font-medium text-gray-900">
