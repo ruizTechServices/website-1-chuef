@@ -27,6 +27,7 @@ export interface ChatMessagePayload extends BaseIngestPayload {
 export interface ContactSubmissionPayload extends BaseIngestPayload {
   kind: "contact_submission";
   email: string;
+  captchaToken: string;
 }
 
 export type IngestPayload = ChatMessagePayload | ContactSubmissionPayload;
@@ -39,10 +40,20 @@ export interface IngestResult {
   embeddingGenerated: boolean;
 }
 
+export type IngestErrorCode = 
+  | "UNAUTHORIZED" 
+  | "VALIDATION_ERROR" 
+  | "EMBEDDING_ERROR" 
+  | "DATABASE_ERROR" 
+  | "UNKNOWN_ERROR"
+  | "COOLDOWN"
+  | "CAPTCHA_REQUIRED"
+  | "CAPTCHA_FAILED";
+
 export interface IngestError {
   success: false;
   error: string;
-  code: "UNAUTHORIZED" | "VALIDATION_ERROR" | "EMBEDDING_ERROR" | "DATABASE_ERROR" | "UNKNOWN_ERROR";
+  code: IngestErrorCode;
 }
 
 export type IngestResponse = IngestResult | IngestError;

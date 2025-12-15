@@ -1,6 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
+
+declare global {
+  interface Window {
+    grecaptcha: {
+      ready: (callback: () => void) => void;
+      execute: (siteKey: string, options: { action: string }) => Promise<string>;
+    };
+  }
+}
+
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
 
 export function ContactForm() {
   const [email, setEmail] = useState("");
@@ -8,6 +19,39 @@ export function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [recaptchaLoaded, setRecaptchaLoaded] = useState(false);
+
+  // Load reCAPTCHA script
+  useEffect(() => {
+    if (typeof window === "undefined" || !RECAPTCHA_SITE_KEY) return;
+    
+    const script = document.createElement("script");
+    script.src = `https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`;
+    script.async = true;
+    script.onload = () => {
+      window.grecaptcha.ready(() => {
+        setRecaptchaLoaded(true);
+      });
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  const getCaptchaToken = useCallback(async (): Promise<string | null> => {
+    if (!recaptchaLoaded || !RECAPTCHA_SITE_KEY) {
+      console.warn("reCAPTCHA not loaded");
+      return null;
+    }
+    try {
+      return await window.grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: "contact_submit" });
+    } catch (err) {
+      console.error("reCAPTCHA error:", err);
+      return null;
+    }
+  }, [recaptchaLoaded]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,6 +62,15 @@ export function ContactForm() {
     setErrorMessage("");
 
     try {
+      // Get reCAPTCHA token
+      const captchaToken = await getCaptchaToken();
+      if (!captchaToken) {
+        setStatus("error");
+        setErrorMessage("Captcha verification failed. Please refresh and try again.");
+        setIsSubmitting(false);
+        return;
+      }
+
       const response = await fetch("/api/ingest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -25,6 +78,7 @@ export function ContactForm() {
           kind: "contact_submission",
           text: message.trim(),
           email: email.trim(),
+          captchaToken,
         }),
       });
 

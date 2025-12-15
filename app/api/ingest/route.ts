@@ -14,10 +14,12 @@ import {
   IngestPayload,
   IngestResponse,
   SurfaceMetadata,
+  isIngestError,
   handleChatMessage,
   handleContactSubmission,
 } from "@/lib/ingest";
 import { checkRateLimit, getClientIdentifier } from "@/lib/rate-limit";
+import { verifyRecaptcha } from "@/lib/captcha";
 
 // Rate limit configs per kind
 const RATE_LIMITS = {
@@ -84,11 +86,36 @@ export async function POST(request: NextRequest): Promise<NextResponse<IngestRes
         }
 
         const result = await handleChatMessage(body, user.id);
+        
+        // Check for cooldown violation (DB enforced via RLS)
+        if (isIngestError(result) && result.error?.includes("violates row-level security")) {
+          return NextResponse.json(
+            { success: false, error: "Cooldown: please wait 30 seconds between messages.", code: "COOLDOWN" } as const,
+            { status: 429 }
+          );
+        }
+        
         const status = result.success ? 201 : 400;
         return NextResponse.json(result, { status });
       }
 
       case "contact_submission": {
+        // Verify reCAPTCHA before processing
+        if (!body.captchaToken) {
+          return NextResponse.json(
+            { success: false, error: "Captcha verification required", code: "CAPTCHA_REQUIRED" },
+            { status: 400 }
+          );
+        }
+
+        const captchaResult = await verifyRecaptcha(body.captchaToken, clientId);
+        if (!captchaResult.ok) {
+          return NextResponse.json(
+            { success: false, error: captchaResult.reason || "Captcha verification failed", code: "CAPTCHA_FAILED" },
+            { status: 403 }
+          );
+        }
+
         // Contact submissions do NOT require authentication
         const result = await handleContactSubmission(body);
         const status = result.success ? 201 : 400;

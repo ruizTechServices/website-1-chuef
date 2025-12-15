@@ -26,6 +26,7 @@ export function ChatRoom({ initialMessages, room = "lobby" }: ChatRoomProps) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [cooldownUntil, setCooldownUntil] = useState<number | null>(null);
 
   const supabase = createClient();
 
@@ -47,6 +48,25 @@ export function ChatRoom({ initialMessages, room = "lobby" }: ChatRoomProps) {
 
     return () => subscription.unsubscribe();
   }, [supabase]);
+
+  // Clear cooldown after timeout
+  useEffect(() => {
+    if (!cooldownUntil) return;
+    
+    const remaining = cooldownUntil - Date.now();
+    if (remaining <= 0) {
+      setCooldownUntil(null);
+      setError(null);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setCooldownUntil(null);
+      setError(null);
+    }, remaining);
+
+    return () => clearTimeout(timer);
+  }, [cooldownUntil]);
 
   // Subscribe to realtime updates
   useEffect(() => {
@@ -128,7 +148,14 @@ export function ChatRoom({ initialMessages, room = "lobby" }: ChatRoomProps) {
       if (!result.success) {
         // Remove optimistic message on error
         setMessages((prev) => prev.filter((m) => m.id !== optimisticMessage.id));
-        setError(result.error || "Failed to send message");
+        
+        // Check if it's a cooldown error
+        if (response.status === 429 || result.code === "COOLDOWN") {
+          setCooldownUntil(Date.now() + 30000); // 30 seconds from now
+          setError("Cooldown: please wait 30 seconds between messages.");
+        } else {
+          setError(result.error || "Failed to send message");
+        }
       } else {
         // Replace optimistic message with real one
         setMessages((prev) =>
