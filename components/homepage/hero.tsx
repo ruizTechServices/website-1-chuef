@@ -23,18 +23,27 @@ export default function Hero() {
         }}
       ></div>
 
-      {/* Scratches overlay effect */}
+      {/* Scratches overlay effect - using fixed values to prevent hydration mismatch */}
       <div className="absolute inset-0 pointer-events-none">
-        {[...Array(8)].map((_, i) => (
+        {[
+          { w: 1.5, h: 80, l: 15, t: 20, r: -5 },
+          { w: 2, h: 120, l: 35, t: 60, r: 8 },
+          { w: 1.2, h: 95, l: 55, t: 10, r: -12 },
+          { w: 2.5, h: 70, l: 75, t: 45, r: 3 },
+          { w: 1.8, h: 110, l: 90, t: 75, r: -8 },
+          { w: 1.3, h: 85, l: 25, t: 85, r: 10 },
+          { w: 2.2, h: 65, l: 65, t: 30, r: -3 },
+          { w: 1.6, h: 100, l: 85, t: 55, r: 6 },
+        ].map((scratch, i) => (
           <div
             key={i}
             className="absolute bg-white/5"
             style={{
-              width: `${Math.random() * 2 + 1}px`,
-              height: `${Math.random() * 100 + 50}px`,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              transform: `rotate(${Math.random() * 30 - 15}deg)`,
+              width: `${scratch.w}px`,
+              height: `${scratch.h}px`,
+              left: `${scratch.l}%`,
+              top: `${scratch.t}%`,
+              transform: `rotate(${scratch.r}deg)`,
             }}
           ></div>
         ))}

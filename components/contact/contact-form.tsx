@@ -102,21 +102,34 @@ export function ContactForm() {
 
   if (status === "success") {
     return (
-      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl p-8 text-center">
-        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-          <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div className="text-center py-4">
+        <div 
+          className="w-16 h-16 mx-auto mb-4 bg-green-600 flex items-center justify-center"
+          style={{ clipPath: 'polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%)' }}
+        >
+          <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+        <h3 
+          className="text-2xl font-black text-white uppercase tracking-tight mb-2"
+          style={{ 
+            fontFamily: 'Impact, Haettenschweiler, Arial Narrow Bold, sans-serif',
+            textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+          }}
+        >
           Message Received
         </h3>
-        <p className="text-slate-600 dark:text-slate-400 mb-6">
+        <p 
+          className="text-gray-400 mb-6 uppercase tracking-wide text-sm"
+          style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}
+        >
           Thank you for reaching out. Your message has been stored and understood.
         </p>
         <button
           onClick={() => setStatus("idle")}
-          className="px-6 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+          className="px-6 py-3 text-sm font-bold text-white uppercase tracking-wider bg-zinc-700 border-2 border-zinc-600 hover:border-white hover:bg-zinc-600 transition-all"
+          style={{ clipPath: 'polygon(3% 0%, 100% 0%, 97% 100%, 0% 100%)' }}
         >
           Send another message
         </button>
@@ -125,11 +138,15 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl p-8">
+    <form onSubmit={handleSubmit}>
       <div className="space-y-6">
         {/* Email field */}
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+          <label 
+            htmlFor="email" 
+            className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wider"
+            style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}
+          >
             Email
           </label>
           <input
@@ -140,13 +157,18 @@ export function ContactForm() {
             placeholder="you@example.com"
             required
             disabled={isSubmitting}
-            className="w-full px-4 py-3 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-4 py-3 text-sm text-white bg-zinc-800 border-2 border-zinc-600 focus:outline-none focus:border-blue-500 focus:shadow-[0_0_10px_rgba(59,130,246,0.3)] disabled:opacity-50 disabled:cursor-not-allowed transition-all placeholder:text-gray-500"
+            style={{ clipPath: 'polygon(0 0, 100% 0, 99% 100%, 1% 100%)' }}
           />
         </div>
 
         {/* Message field */}
         <div>
-          <label htmlFor="message" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+          <label 
+            htmlFor="message" 
+            className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wider"
+            style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}
+          >
             Message
           </label>
           <textarea
@@ -157,14 +179,18 @@ export function ContactForm() {
             required
             disabled={isSubmitting}
             rows={5}
-            className="w-full px-4 py-3 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-4 py-3 text-sm text-white bg-zinc-800 border-2 border-zinc-600 resize-none focus:outline-none focus:border-blue-500 focus:shadow-[0_0_10px_rgba(59,130,246,0.3)] disabled:opacity-50 disabled:cursor-not-allowed transition-all placeholder:text-gray-500"
+            style={{ clipPath: 'polygon(0 0, 100% 0, 99.5% 100%, 0.5% 100%)' }}
           />
         </div>
 
         {/* Error message */}
         {status === "error" && (
-          <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-            <p className="text-sm text-red-600 dark:text-red-400">{errorMessage}</p>
+          <div 
+            className="p-3 bg-red-900/30 border-2 border-red-700"
+            style={{ clipPath: 'polygon(0 0, 100% 0, 99% 100%, 1% 100%)' }}
+          >
+            <p className="text-sm text-red-400 font-bold uppercase tracking-wide">{errorMessage}</p>
           </div>
         )}
 
@@ -172,7 +198,11 @@ export function ContactForm() {
         <button
           type="submit"
           disabled={!email.trim() || !message.trim() || isSubmitting}
-          className="w-full px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl hover:shadow-lg hover:shadow-cyan-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
+          className="w-full px-6 py-4 text-sm font-black text-white uppercase tracking-wider bg-blue-600 hover:bg-blue-700 hover:shadow-[0_0_20px_rgba(37,99,235,0.5)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none border border-blue-500/50"
+          style={{ 
+            clipPath: 'polygon(2% 0%, 100% 0%, 98% 100%, 0% 100%)',
+            textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
+          }}
         >
           {isSubmitting ? (
             <span className="flex items-center justify-center gap-2">
@@ -188,7 +218,10 @@ export function ContactForm() {
         </button>
       </div>
 
-      <p className="text-xs text-slate-400 dark:text-slate-500 mt-4 text-center">
+      <p 
+        className="text-xs text-gray-500 mt-4 text-center uppercase tracking-wider"
+        style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}
+      >
         Your message will be stored and understood — not discarded.
       </p>
     </form>
