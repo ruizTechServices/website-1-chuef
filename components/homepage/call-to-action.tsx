@@ -38,7 +38,7 @@ export default function CallToAction() {
                   className="text-sm font-bold text-blue-400 uppercase tracking-wider"
                   style={{ textShadow: '0 0 10px rgba(59, 130, 246, 0.5)' }}
                 >
-                  No Sign-Up Required
+                  Read Without Signing In
                 </span>
               </div>
 
@@ -64,7 +64,7 @@ export default function CallToAction() {
                 className="text-lg sm:text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed uppercase tracking-wide"
                 style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}
               >
-                Jump into live discussions. No account needed. Just pick a room and start talking your shit.
+                Jump into live discussions. Read the lobby freely. Sign in only to post — your Google account stays private.
               </p>
 
               {/* CTA Buttons */}
@@ -98,6 +98,12 @@ export default function CallToAction() {
                   </span>
                 </Link>
               </div>
+              <p 
+                className="text-sm text-gray-400 mt-4 font-medium"
+                style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}
+              >
+                Create a Chuef identity after signing in with Google.
+              </p>
 
               {/* Trust indicators */}
               <div className="mt-12 pt-8 border-t-2 border-zinc-700">

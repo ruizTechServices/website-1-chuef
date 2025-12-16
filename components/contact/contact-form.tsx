@@ -124,7 +124,7 @@ export function ContactForm() {
           className="text-gray-400 mb-6 uppercase tracking-wide text-sm"
           style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}
         >
-          Thank you for reaching out. Your message has been stored and understood.
+          Thank you for reaching out. We'll get back to you soon.
         </p>
         <button
           onClick={() => setStatus("idle")}
@@ -219,10 +219,10 @@ export function ContactForm() {
       </div>
 
       <p 
-        className="text-xs text-gray-500 mt-4 text-center uppercase tracking-wider"
+        className="text-xs text-gray-400 mt-4 text-center uppercase tracking-wider font-medium"
         style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}
       >
-        Your message will be stored and understood — not discarded.
+        Messages are stored securely and only reviewed for support and moderation.
       </p>
     </form>
   );

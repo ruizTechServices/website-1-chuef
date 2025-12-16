@@ -90,10 +90,10 @@ export default async function ChatroomPage() {
         {/* Footer info */}
         <div className="mt-6 text-center">
           <p 
-            className="text-xs text-gray-500 uppercase tracking-wider"
+            className="text-xs text-gray-400 uppercase tracking-wider font-medium"
             style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}
           >
-            Every message is stored and understood — not discarded.
+            You're viewing live messages. Sign in to join the conversation.
           </p>
         </div>
       </div>

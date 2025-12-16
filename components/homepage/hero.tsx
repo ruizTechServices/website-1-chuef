@@ -123,13 +123,19 @@ export default function Hero() {
               Create Identity
             </Link>
           </div>
+          <p 
+            className="text-sm text-gray-400 mt-4 font-medium"
+            style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}
+          >
+            Create a Chuef identity after signing in with Google.
+          </p>
 
           {/* Bottom stats - grunge style */}
           <div className="mt-12 sm:mt-16 lg:mt-20 flex flex-wrap justify-center gap-6 sm:gap-12 lg:gap-16">
             {[
               { value: '24/7', label: 'Always Live' },
               { value: '∞', label: 'No Limits' },
-              { value: 'FREE', label: 'No Sign-up' },
+              { value: 'FREE', label: 'Read Anytime' },
             ].map((stat, i) => (
               <div key={i} className="group text-center">
                 <div 
