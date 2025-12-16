@@ -1,11 +1,12 @@
 'use client';
 import Link from 'next/link';
+import { PaintSplat } from "@/components/effects";
 
 export default function Hero() {
   //I want to retrieve this data from Supabase in the later future. I want to retrieve the names of the actual chatrooms available and it is then displayed in this hero section accordingly.
   
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-visible">
       {/* Grungy background image */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -161,6 +162,11 @@ export default function Hero() {
           background: 'radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.4) 100%)',
         }}
       ></div>
+
+      {/* Paint splats */}
+      {/* <PaintSplat x="10%" y="20%" size={150} delay={1000} zIndex={5} />
+      <PaintSplat x="50%" y="20%" size={150} delay={1000} zIndex={5} />
+      <PaintSplat x="90%" y="20%" size={150} delay={1000} zIndex={5} /> */}
     </section>
   );
 }
