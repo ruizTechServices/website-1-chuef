@@ -19,35 +19,51 @@ export default function Header() {
     const supabase = createClient();
 
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-      
-      // Fetch display name if user is logged in
-      if (user) {
-        const { data: displayNameResult } = await supabase.rpc("get_display_name", {
-          p_user_id: user.id,
-        });
-        setDisplayName(displayNameResult || "anon#????");
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
+        
+        // Fetch display name if user is logged in
+        if (user) {
+          try {
+            const { data: displayNameResult } = await supabase.rpc("get_display_name", {
+              p_user_id: user.id,
+            });
+            setDisplayName(displayNameResult || "anon#????");
+          } catch (err) {
+            console.error("Failed to fetch display name:", err);
+            setDisplayName("anon#????");
+          }
+        }
+      } catch (err) {
+        console.error("Failed to get user:", err);
+      } finally {
+        setIsLoading(false);
       }
-      
-      setIsLoading(false);
     };
 
     getUser();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
+        setIsLoading(true);
         setUser(session?.user ?? null);
         
         // Fetch display name on auth state change
         if (session?.user) {
-          const { data: displayNameResult } = await supabase.rpc("get_display_name", {
-            p_user_id: session.user.id,
-          });
-          setDisplayName(displayNameResult || "anon#????");
+          try {
+            const { data: displayNameResult } = await supabase.rpc("get_display_name", {
+              p_user_id: session.user.id,
+            });
+            setDisplayName(displayNameResult || "anon#????");
+          } catch (err) {
+            console.error("Failed to fetch display name:", err);
+            setDisplayName("anon#????");
+          }
         } else {
           setDisplayName(null);
         }
+        setIsLoading(false);
       }
     );
 
