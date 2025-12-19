@@ -9,6 +9,7 @@ import type { User } from "@supabase/supabase-js";
 
 export default function Header() {
   const [user, setUser] = useState<User | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -20,14 +21,33 @@ export default function Header() {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
+      
+      // Fetch display name if user is logged in
+      if (user) {
+        const { data: displayNameResult } = await supabase.rpc("get_display_name", {
+          p_user_id: user.id,
+        });
+        setDisplayName(displayNameResult || "anon#????");
+      }
+      
       setIsLoading(false);
     };
 
     getUser();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      async (_event, session) => {
         setUser(session?.user ?? null);
+        
+        // Fetch display name on auth state change
+        if (session?.user) {
+          const { data: displayNameResult } = await supabase.rpc("get_display_name", {
+            p_user_id: session.user.id,
+          });
+          setDisplayName(displayNameResult || "anon#????");
+        } else {
+          setDisplayName(null);
+        }
       }
     );
 
@@ -122,7 +142,7 @@ export default function Header() {
                           className="text-sm font-bold text-gray-300 max-w-[150px] truncate whitespace-nowrap uppercase tracking-wide"
                           style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}
                         >
-                          {user.user_metadata?.full_name || user.email?.split("@")[0]}
+                          {displayName || "anon#????"}
                         </span>
                         <svg
                           className={`w-4 h-4 text-gray-400 transition-transform ${isMenuOpen ? "rotate-180" : ""}`}
@@ -145,10 +165,10 @@ export default function Header() {
                               className="text-sm font-bold text-white truncate uppercase"
                               style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}
                             >
-                              {user.user_metadata?.full_name || "User"}
+                              {displayName || "anon#????"}
                             </p>
-                            <p className="text-xs text-gray-500 truncate">
-                              {user.email}
+                            <p className="text-xs text-gray-500">
+                              Logged in
                             </p>
                           </div>
                           <Link
@@ -294,10 +314,10 @@ export default function Header() {
                           className="text-sm font-bold text-white truncate uppercase"
                           style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}
                         >
-                          {user.user_metadata?.full_name || "User"}
+                          {displayName || "anon#????"}
                         </p>
-                        <p className="text-xs text-gray-500 truncate">
-                          {user.email}
+                        <p className="text-xs text-gray-500">
+                          Logged in
                         </p>
                       </div>
                     </div>

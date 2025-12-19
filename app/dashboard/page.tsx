@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { SignOutButton } from "@/components/auth/sign-out-button";
+import { UsernameEditor } from "@/components/profile/username-editor";
 import Link from "next/link";
 
 export default async function DashboardPage() {
@@ -22,6 +23,18 @@ export default async function DashboardPage() {
     .from("chat_messages")
     .select("*", { count: "exact", head: true })
     .eq("user_id", user.id);
+
+  // Fetch user profile (username, etc.)
+  const { data: profile } = await supabase
+    .from("user_profiles")
+    .select("username, username_changed")
+    .eq("id", user.id)
+    .single();
+
+  // Get display name using the database function
+  const { data: displayName } = await supabase.rpc("get_display_name", {
+    p_user_id: user.id,
+  });
 
   // Admin-only: Fetch contact submissions
   let contactSubmissions: any[] = [];
@@ -123,7 +136,24 @@ export default async function DashboardPage() {
                 className="text-sm font-bold text-blue-400 uppercase tracking-wider border-b border-zinc-700 pb-2"
                 style={{ textShadow: '0 0 10px rgba(59, 130, 246, 0.3)' }}
               >
-                Profile Info
+                Public Identity
+              </h3>
+              
+              {/* Username Editor Component */}
+              <UsernameEditor
+                initialUsername={profile?.username || null}
+                initialDisplayName={displayName || "anon#????"}
+                canChangeUsername={!profile?.username_changed}
+              />
+            </div>
+
+            <div className="space-y-4 mt-6 pt-4 border-t border-zinc-700">
+              <h3 
+                className="text-sm font-bold text-green-400 uppercase tracking-wider border-b border-zinc-700 pb-2"
+                style={{ textShadow: '0 0 10px rgba(34, 197, 94, 0.3)' }}
+              >
+                Private Info
+                <span className="text-xs text-gray-500 normal-case font-normal ml-2">(only you can see this)</span>
               </h3>
               
               <dl className="space-y-3 text-sm">

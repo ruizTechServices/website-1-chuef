@@ -24,25 +24,45 @@ interface RealtimeChatMessage {
 export function ChatRoom({ initialMessages, room = "lobby" }: ChatRoomProps) {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [user, setUser] = useState<User | null>(null);
+  const [userDisplayName, setUserDisplayName] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [cooldownUntil, setCooldownUntil] = useState<number | null>(null);
 
   const supabase = createClient();
 
-  // Get current user
+  // Get current user and their display name
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
+      
+      // Fetch display name for the current user
+      if (user) {
+        const { data: displayName } = await supabase.rpc("get_display_name", {
+          p_user_id: user.id,
+        });
+        setUserDisplayName(displayName || "anon#????");
+      }
+      
       setIsLoading(false);
     };
 
     getUser();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      async (_event, session) => {
         setUser(session?.user ?? null);
+        
+        // Fetch display name on auth state change
+        if (session?.user) {
+          const { data: displayName } = await supabase.rpc("get_display_name", {
+            p_user_id: session.user.id,
+          });
+          setUserDisplayName(displayName || "anon#????");
+        } else {
+          setUserDisplayName(null);
+        }
       }
     );
 
@@ -120,13 +140,13 @@ export function ChatRoom({ initialMessages, room = "lobby" }: ChatRoomProps) {
 
     setError(null);
 
-    // Optimistic update
+    // Optimistic update - use the fetched display name (username or anon#)
     const optimisticMessage: ChatMessage = {
       id: `temp-${Date.now()}`,
       text,
       created_at: new Date().toISOString(),
       user_id: user.id,
-      display_name: user.user_metadata?.full_name || user.email?.split("@")[0] || "You",
+      display_name: userDisplayName || "anon#????",
       avatar_url: user.user_metadata?.avatar_url || null,
     };
 
@@ -171,7 +191,7 @@ export function ChatRoom({ initialMessages, room = "lobby" }: ChatRoomProps) {
       setMessages((prev) => prev.filter((m) => m.id !== optimisticMessage.id));
       setError("Failed to send message. Please try again.");
     }
-  }, [user, room]);
+  }, [user, userDisplayName, room]);
 
   return (
     <div className="flex flex-col h-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden">
