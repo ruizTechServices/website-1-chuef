@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { signOut } from "@/lib/auth";
 import { useRouter } from "next/navigation";
@@ -14,9 +14,10 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
+  
+  const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
-    const supabase = createClient();
 
     const getUser = async () => {
       try {
@@ -25,14 +26,15 @@ export default function Header() {
         
         // Fetch display name if user is logged in
         if (user) {
-          try {
-            const { data: displayNameResult } = await supabase.rpc("get_display_name", {
-              p_user_id: user.id,
-            });
-            setDisplayName(displayNameResult || "anon#????");
-          } catch (err) {
-            console.error("Failed to fetch display name:", err);
+          const { data: displayNameResult, error: rpcError } = await supabase.rpc("get_display_name", {
+            p_user_id: user.id,
+          });
+          
+          if (rpcError) {
+            console.error("RPC error fetching display name:", rpcError);
             setDisplayName("anon#????");
+          } else {
+            setDisplayName(displayNameResult || "anon#????");
           }
         }
       } catch (err) {
@@ -51,14 +53,15 @@ export default function Header() {
         
         // Fetch display name on auth state change
         if (session?.user) {
-          try {
-            const { data: displayNameResult } = await supabase.rpc("get_display_name", {
-              p_user_id: session.user.id,
-            });
-            setDisplayName(displayNameResult || "anon#????");
-          } catch (err) {
-            console.error("Failed to fetch display name:", err);
+          const { data: displayNameResult, error: rpcError } = await supabase.rpc("get_display_name", {
+            p_user_id: session.user.id,
+          });
+          
+          if (rpcError) {
+            console.error("RPC error fetching display name:", rpcError);
             setDisplayName("anon#????");
+          } else {
+            setDisplayName(displayNameResult || "anon#????");
           }
         } else {
           setDisplayName(null);
@@ -68,7 +71,7 @@ export default function Header() {
     );
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [supabase]);
 
   const handleSignOut = async () => {
     await signOut();
