@@ -7,6 +7,16 @@ import { signOut } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 
+// Timeout wrapper for RPC calls to prevent hanging
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error("RPC timeout")), ms)
+    ),
+  ]);
+}
+
 export default function Header() {
   const [user, setUser] = useState<User | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
@@ -17,61 +27,90 @@ export default function Header() {
   
   const supabase = useMemo(() => createClient(), []);
 
+  // Effect 1: Auth state subscription (non-blocking, no RPC calls)
   useEffect(() => {
+    let cancelled = false;
 
-    const getUser = async () => {
+    const getInitialUser = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        setUser(user);
-        
-        // Fetch display name if user is logged in
-        if (user) {
-          const { data: displayNameResult, error: rpcError } = await supabase.rpc("get_display_name", {
-            p_user_id: user.id,
-          });
-          
-          if (rpcError) {
-            console.error("RPC error fetching display name:", rpcError);
-            setDisplayName("anon#????");
-          } else {
-            setDisplayName(displayNameResult || "anon#????");
-          }
+        if (!cancelled) {
+          setUser(user);
         }
       } catch (err) {
         console.error("Failed to get user:", err);
       } finally {
-        setIsLoading(false);
+        if (!cancelled) {
+          setIsLoading(false);
+        }
       }
     };
 
-    getUser();
+    getInitialUser();
 
+    // Auth state change handler: MUST be non-blocking (no await, no RPC)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setIsLoading(true);
+      (_event, session) => {
+        if (cancelled) return;
+        // Immediately update user state - no network calls here
         setUser(session?.user ?? null);
-        
-        // Fetch display name on auth state change
-        if (session?.user) {
-          const { data: displayNameResult, error: rpcError } = await supabase.rpc("get_display_name", {
-            p_user_id: session.user.id,
-          });
-          
-          if (rpcError) {
-            console.error("RPC error fetching display name:", rpcError);
-            setDisplayName("anon#????");
-          } else {
-            setDisplayName(displayNameResult || "anon#????");
-          }
-        } else {
+        // Clear display name on logout, will be fetched by separate effect
+        if (!session?.user) {
           setDisplayName(null);
         }
+        // Loading is done for auth state - display name fetched separately
         setIsLoading(false);
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, [supabase]);
+
+  // Effect 2: Fetch display name separately when user.id changes (best-effort with timeout)
+  useEffect(() => {
+    if (!user?.id) {
+      setDisplayName(null);
+      return;
+    }
+
+    let cancelled = false;
+    
+    // Set immediate fallback (never use Google full_name for public display)
+    setDisplayName("anon#????");
+
+    const fetchDisplayName = async () => {
+      try {
+        // Wrap RPC in timeout (3 seconds max) to prevent hanging forever
+        const { data: displayNameResult, error: rpcError } = await withTimeout(
+          Promise.resolve(supabase.rpc("get_display_name", { p_user_id: user.id })),
+          3000
+        );
+
+        if (cancelled) return;
+
+        if (rpcError) {
+          console.warn("RPC error fetching display name (non-fatal):", rpcError);
+          // Keep fallback, already set above
+        } else if (displayNameResult) {
+          setDisplayName(displayNameResult);
+        }
+        // If no result, keep the fallback "anon#????"
+      } catch (err) {
+        if (cancelled) return;
+        console.warn("Failed to fetch display name (non-fatal):", err);
+        // Keep fallback, already set above
+      }
+    };
+
+    fetchDisplayName();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id, supabase]);
 
   const handleSignOut = async () => {
     await signOut();
